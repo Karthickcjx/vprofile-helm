@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vproapp
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: vproapp
+  template:
+    metadata:
+      labels:
+        app: vproapp
+    spec:
+      {{- if .Values.dockerregistry.enabled }}
+      imagePullSecrets:
+        - name: dockerregistry
+      {{- end }}
+      containers:
+        - name: vproapp
+          image: {{ printf "%s:%s" .Values.app.image .Values.app.tag | quote }}
+          imagePullPolicy: Always
+          ports:
+            - name: app-port
+              containerPort: {{ .Values.app.containerPort }}

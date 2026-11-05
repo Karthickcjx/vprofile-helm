@@ -1,0 +1,6 @@
+apiVersion: v2
+name: vprofile-eks
+description: VProfile application and backing services for EKS
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

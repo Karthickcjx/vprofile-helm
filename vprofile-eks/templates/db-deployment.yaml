@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vprodb
+spec:
+  replicas: {{ .Values.db.replicas }}
+  selector:
+    matchLabels:
+      app: vprodb
+  template:
+    metadata:
+      labels:
+        app: vprodb
+    spec:
+      {{- if .Values.dockerregistry.enabled }}
+      imagePullSecrets:
+        - name: dockerregistry
+      {{- end }}
+      {{- if .Values.initcontainers.enabled }}
+      initContainers:
+        - name: clean-db
+          image: {{ printf "%s:%s" .Values.initcontainers.image .Values.initcontainers.tag | quote }}
+          command: ["sh", "-c", "rm -rf /var/lib/mysql/*"]
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/mysql
+      {{- end }}
+      containers:
+        - name: vprodb
+          image: {{ printf "%s:%s" .Values.db.image .Values.db.tag | quote }}
+          imagePullPolicy: Always
+          ports:
+            - name: db-port
+              containerPort: {{ .Values.db.containerPort }}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: db-pass
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: db-pv-claim
