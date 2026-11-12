@@ -40,8 +40,8 @@ ingress:
   servicePort: 8080
 
 secrets:
-  dbPassword: vprodbpass
-  rabbitmqPassword: guest
+  dbPassword: dnByb2ZpbGU=
+  rabbitmqPassword: Z3Vlc3Q=
 
 dockerregistry:
   enabled: false
